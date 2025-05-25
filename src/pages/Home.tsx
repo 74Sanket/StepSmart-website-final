@@ -62,8 +62,8 @@ export default function Home() {
             <div className="flex flex-col justify-center space-y-4">
               <div className="space-y-2">
                 <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
-                  Take Your Career to the{" "}
-                  <span className="text-primary">Next Level</span>
+                  Your step to {" "}
+                  <span className="text-primary">Success</span>
                 </h1>
                 <p className="max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
                   Connect with expert mentors and access world-class courses
@@ -156,17 +156,14 @@ export default function Home() {
                   className="text-lg animate-in"
                   style={{ animationDelay: "0.2s" }}
                 >
-                  We believe that everyone deserves access to quality mentorship
-                  that can accelerate their learning journey and help them
-                  achieve their goals faster and more efficiently.
+                  Our mission is: if a student has the skills and domain knowledge, they deserve a step at their dream job.
+
                 </p>
                 <p
                   className="text-lg animate-in"
                   style={{ animationDelay: "0.3s" }}
                 >
-                  Our vision is to create a global community where knowledge
-                  flows freely between generations and disciplines, empowering
-                  individuals to reach their full potential.
+                  We're not just building a platform — we’re building a community for students, by students, where support, mentorship, and progress go hand in hand.
                 </p>
               </div>
               <div className="animate-in" style={{ animationDelay: "0.4s" }}>
