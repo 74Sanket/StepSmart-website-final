@@ -189,35 +189,35 @@ export default function Home() {
         <div className="container px-4 md:px-6">
           <SectionHeading
             title="Why Choose StepSmart"
-            subtitle="Our platform offers everything you need to accelerate your professional growth"
+            subtitle="Stepsmart provides strategy with expert guidance to provide a comprehensive preparation experience"
             centered
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <FeatureCard
-              title="Expert Mentors"
+              title="Expert Mentorship"
               description="Connect with industry professionals who have walked the path you're on."
               icon={<Users className="h-6 w-6" />}
               className="animate-on-scroll opacity-0 transition-all"
               data-delay="100ms"
             />
             <FeatureCard
-              title="Quality Courses"
+              title="Quality resources"
               description="Access comprehensive learning materials designed for practical application."
               icon={<BookOpen className="h-6 w-6" />}
               className="animate-on-scroll opacity-0 transition-all"
               data-delay="300ms"
             />
             <FeatureCard
-              title="Skill Certification"
-              description="Earn recognized certificates to showcase your newly acquired skills."
+              title="Skill assessment and guidance"
+              description="Monitor your development with regular skill tests and feedback for improvement"
               icon={<Award className="h-6 w-6" />}
               className="animate-on-scroll opacity-0 transition-all"
               data-delay="500ms"
             />
             <FeatureCard
-              title="Progress Tracking"
-              description="Monitor your development with detailed analytics and feedback."
+              title="Structured pathways"
+              description="Step by step guide to attain your goals"
               icon={<BarChart className="h-6 w-6" />}
               className="animate-on-scroll opacity-0 transition-all"
               data-delay="700ms"
