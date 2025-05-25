@@ -195,7 +195,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <FeatureCard
-              title="Expert Mentorship"
+              title="Expert mentorship"
               description="Connect with industry professionals who have walked the path you're on."
               icon={<Users className="h-6 w-6" />}
               className="animate-on-scroll opacity-0 transition-all"
