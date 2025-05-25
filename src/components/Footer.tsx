@@ -50,18 +50,18 @@ export function Footer() {
               <span className="font-bold text-xl">StepSmart</span>
             </div>
             <p className="text-muted-foreground">
-              Empowering individuals through mentorship and education. Join our
-              community today!
+              Your step towards success. Join our
+              community to Learn! Grow! and Succeed!
             </p>
             <div className="flex space-x-3">
-              <Button variant="ghost" size="icon" className="rounded-full">
-                <Twitter className="h-4 w-4" />
-                <span className="sr-only">Twitter</span>
-              </Button>
+              <a href="https://www.linkedin.com/company/stepsmart/posts/?feedView=all"
+                target="_blank"
+                rel="noopener noreferrer">
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Linkedin className="h-4 w-4" />
                 <span className="sr-only">LinkedIn</span>
               </Button>
+                </a>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Youtube className="h-4 w-4" />
                 <span className="sr-only">YouTube</span>
@@ -115,7 +115,7 @@ export function Footer() {
               <li className="text-muted-foreground">
                 administrator@stepsmart.com
               </li>
-              <li className="text-muted-foreground">+1 (555) 123-4567</li>
+              <li className="text-muted-foreground">+91 - 9790464269 / +91 - 9766704926 </li>
             </ul>
           </div>
 
