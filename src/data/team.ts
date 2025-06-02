@@ -29,7 +29,7 @@ export const team: TeamMember[] = [
     name: "Ankit Surkar",
     role: "Head of Education",
     bio: "Ankit is an IIM Bangalore graduate and Product Manager at Microsoft with a passion for education. He oversees our mentorship programs, ensuring they provide real value to both mentors and mentees.",
-    image: "/Ankit.jpeg",
+    image: "/Ankit.JPG",
     social: {
       twitter: "https://twitter.com",
       linkedin: "https://linkedin.com",
