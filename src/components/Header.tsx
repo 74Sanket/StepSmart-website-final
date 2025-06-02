@@ -40,7 +40,7 @@ const Header = () => {
     >
       <div className="container flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <div className="bg-primary rounded-lg p-1">
+          {/* <div className="bg-primary rounded-lg p-1"> */}
             {/* <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -60,7 +60,7 @@ const Header = () => {
       alt="StepSmart Logo"
       className="h-6 w-6 object-contain"
     />
-          </div>
+          {/* </div> */}
           <span className="font-bold text-xl">StepSmart</span>
         </Link>
 
