@@ -15,22 +15,21 @@ export interface TeamMember {
 export const team: TeamMember[] = [
   {
     id: "1",
-    name: "Sanket",
+    name: "Sanket Katore",
     role: "Founder & CEO",
     bio: "Sanket founded StepSmart with a vision to make mentorship accessible to everyone. With 5+ years in EdTech, he's passionate about transforming how we approach learning.",
-    image: "https://i.pravatar.cc/300?img=57",
+    image: "/Sanket.jpeg",
     social: {
-      twitter: "https://twitter.com",
       linkedin: "https://linkedin.com",
       github: "https://github.com",
     },
   },
   {
     id: "2",
-    name: "Shivang",
+    name: "Ankit Surkar",
     role: "Head of Education",
-    bio: "Shivang brings over a decade of experience in curriculum development. She ensures all StepSmart courses meet the highest pedagogical standards.",
-    image: "https://i.pravatar.cc/300?img=14",
+    bio: "Ankit is an IIM Bangalore graduate and Product Manager at Microsoft with a passion for education. He oversees our mentorship programs, ensuring they provide real value to both mentors and mentees.",
+    image: "/Ankit.jpeg",
     social: {
       twitter: "https://twitter.com",
       linkedin: "https://linkedin.com",
@@ -38,10 +37,10 @@ export const team: TeamMember[] = [
   },
   {
     id: "3",
-    name: "Ankit",
-    role: "Lead Developer",
-    bio: "Ankit leads our technical team with expertise in creating seamless learning platforms. He's committed to building technology that enhances the mentorship experience.",
-    image: "https://i.pravatar.cc/300?img=12",
+    name: "Achyut Singh",
+    role: "Strategy and Outreach",
+    bio: "Achyut drives our strategic initiatives and outreach efforts. With a background in business development, he connects StepSmart with industry leaders and mentors to enhance our platform.",
+    image: "/Achyut.jpeg",
     social: {
       linkedin: "https://linkedin.com",
       github: "https://github.com",
@@ -49,9 +48,9 @@ export const team: TeamMember[] = [
   },
   {
     id: "4",
-    name: "Achutya",
+    name: "Shivang Bajaj",
     role: "Community Manager",
-    bio: "Achutya fosters our vibrant community of mentors and learners. She organizes events and programs that create meaningful connections within the StepSmart ecosystem.",
+    bio: "Shivang is an IIT Kanpur grad and fosters our vibrant community of mentors and learners. He organizes events and programs that create meaningful connections within the StepSmart ecosystem.",
     image: "https://i.pravatar.cc/300?img=1",
     social: {
       twitter: "https://twitter.com",
