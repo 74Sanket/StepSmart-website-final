@@ -51,7 +51,7 @@ export const team: TeamMember[] = [
     name: "Shivang Bajaj",
     role: "Community Manager",
     bio: "Shivang is an IIT Kanpur grad and fosters our vibrant community of mentors and learners. He organizes events and programs that create meaningful connections within the StepSmart ecosystem.",
-    image: "https://i.pravatar.cc/300?img=1",
+    image: "/Shivang.jpeg",
     social: {
       twitter: "https://twitter.com",
       linkedin: "https://linkedin.com",
