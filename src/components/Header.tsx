@@ -41,7 +41,7 @@ const Header = () => {
       <div className="container flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
           <div className="bg-primary rounded-lg p-1">
-            <svg
+            {/* <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
@@ -54,7 +54,12 @@ const Header = () => {
               <path d="M10 20l4-16" />
               <path d="M4 20l7-7" />
               <path d="M13 7l7 7" />
-            </svg>
+            </svg> */}
+            <img
+      src="/icon.png"
+      alt="StepSmart Logo"
+      className="h-6 w-6 object-contain"
+    />
           </div>
           <span className="font-bold text-xl">StepSmart</span>
         </Link>
