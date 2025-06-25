@@ -443,11 +443,11 @@ export default function Home() {
                       <div className="flex flex-col items-center text-center space-y-4">
                         <div className="relative">
                           <div className="absolute -z-10 -inset-1 rounded-full bg-primary/20 blur-sm" />
-                          <img
+                          {/* <img
                             src={testimonial.avatar}
                             alt={testimonial.name}
                             className="w-16 h-16 rounded-full object-cover border-2 border-primary/50"
-                          />
+                          /> */}
                         </div>
                         <div className="space-y-2">
                           <svg
