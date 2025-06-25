@@ -28,11 +28,4 @@ export const testimonials: Testimonial[] = [
     content:
       "I seeked Ankit’s help when I was supposed to provide solutions for a very vaguely defined case study on product management. I found Ankit to be really helpful in two ways:Clarity of thought: Ankit helped me break down the vagueness into defined chunks which made it a lot easier to approach the problem. Also, Ankit comes with sharp clarity of thought and a great product sense. This enabled a dialogue of asking right questions, defining the structure of the problem and providing me the tools to arrive at a solution.⁠He is very professional with his time, conduct and approach. He is free of judgement which let me comfortably ask questions and discuss even the slightest doubts.He is very approachable and I found that each time I interacted with him, I had something better to learn from him as a product manager (so much so I went back to him for advice for a second case interview)."
   },
-  {
-    id: "4",
-    name: "Marcus Johnson",
-    role: "Marketing Strategist",
-    content:
-      "The community aspect of StepSmart is what sets it apart. Beyond the courses and mentorship, I've built a network of professionals who continue to support and inspire me."
-  },
 ];
