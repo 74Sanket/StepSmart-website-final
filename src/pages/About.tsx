@@ -162,15 +162,12 @@ export default function About() {
               <div className="space-y-4">
                 <h3 className="text-2xl font-bold">Our Story</h3>
                 <p className="text-muted-foreground">
-                  StepSmart was founded in 2024 with a simple yet powerful
-                  vision: to make high-quality mentorship accessible to
-                  everyone, regardless of their background or location.
+                  StepSmart is founded by IIT/IIM alums with a mission to make career mentorship accessible to everyone. We connect learners with experienced professionals to provide personalized guidance and real-world insights.
+Our goal is to bridge the gap between academia and industry by offering practical support and trusted mentorship helping individuals move confidently from campus to career.
                 </p>
                 <p className="text-muted-foreground">
-                  What began as a small network of tech professionals offering
-                  guidance to newcomers has evolved into a comprehensive
-                  platform connecting mentors and learners across industries and
-                  borders.
+                  Our goal is to bridge the gap between academia and industry by offering practical support and trusted mentorship helping individuals move confidently from campus to career.
+
                 </p>
               </div>
 
