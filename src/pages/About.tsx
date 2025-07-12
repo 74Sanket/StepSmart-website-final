@@ -1,6 +1,5 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { TeamMemberCard } from "@/components/TeamMemberCard";
-import { useNavigate } from "react-router-dom";
 import { team } from "@/data/team";
 import {
   Card,
@@ -17,7 +16,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const navigate = useNavigate();
 const TeamMemberCard2 = ({ member }: { member: any }) => {
   return (
     <Card className="overflow-hidden border-none">
@@ -593,23 +591,18 @@ Our goal is to bridge the gap between academia and industry by offering practica
             className="flex flex-wrap justify-center gap-4 pt-2 animate-in"
             style={{ animationDelay: "0.2s" }}
           >
-            {/* <a
+            <a
               href="/schedule"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-white text-primary shadow hover:bg-white/90 h-9 px-4 py-2"
-            > */}
-            <button onClick={() => navigate("/schedule")}>
-              Find a mentor
-            </button>
-              {/* Find a Mentor
-            </a> */}
-            {/* <a
+            >
+              Find a Mentor
+            </a>
+            <a
               href="/signup"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-primary-foreground bg-transparent text-primary-foreground shadow-sm hover:bg-primary-foreground/10 h-9 px-4 py-2"
-            > */}
-            <button onClick={() => navigate("/signup")}>
+            >
               Become a Mentor
-            </button>
-            {/* </a> */}
+            </a>
           </div>
         </div>
       </section>
