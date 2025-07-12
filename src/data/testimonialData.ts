@@ -29,7 +29,7 @@ export const testimonialsData: Testimonial[] = [
   },
   {
     id: "3",
-    name: "Nishtha",
+    name: "Nishtha Jain",
     role: "Product Manager",
     company: "American Express",
     quote:
