@@ -1,5 +1,6 @@
 import { SectionHeading } from "@/components/SectionHeading";
 import { TeamMemberCard } from "@/components/TeamMemberCard";
+import { Link } from "react-router-dom";
 import { team } from "@/data/team";
 import {
   Card,
@@ -591,18 +592,30 @@ Our goal is to bridge the gap between academia and industry by offering practica
             className="flex flex-wrap justify-center gap-4 pt-2 animate-in"
             style={{ animationDelay: "0.2s" }}
           >
-            <a
+            {/* <a
               href="/schedule"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-white text-primary shadow hover:bg-white/90 h-9 px-4 py-2"
-            >
-              Find a Mentor
-            </a>
-            <a
+            > */}
+              <Link
+        to="/schedule"
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring bg-white text-primary shadow hover:bg-white/90 h-9 px-4 py-2"
+      >
+Find a Mentor
+      </Link>
+              
+            {/* </a> */}
+            {/* <a
               href="/signup"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-primary-foreground bg-transparent text-primary-foreground shadow-sm hover:bg-primary-foreground/10 h-9 px-4 py-2"
-            >
+            > */}
               Become a Mentor
-            </a>
+            {/* </a> */}
+            <Link
+        to="/signup"
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-primary-foreground bg-transparent text-primary-foreground shadow-sm hover:bg-primary-foreground/10 h-9 px-4 py-2"
+      >
+        Become a Mentor
+      </Link>
           </div>
         </div>
       </section>
