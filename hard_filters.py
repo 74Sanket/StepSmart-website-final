@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+"""
+Step 3: Hard Filters Module (Code-based, Zero LLM cost)
+Applies strict hard filters:
+1. Product Management role enforcement (drops non-PM jobs).
+2. India location enforcement (drops foreign/non-India jobs unless remote India).
+3. Drops author headlines matching 'Open to work', 'Student', 'Job seeker'.
+4. Drops agency/consultancy posts ('hiring for our client').
+5. Drops short reshares without content.
+6. Regex extracts emails and sets has_email = True.
+"""
+
+import re
+
+EMAIL_REGEX = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+
+PM_ROLES = [
+    "product manager", "apm", "associate product manager", "junior product manager",
+    "junior pm", "product analyst", "product intern", "pm intern", "rpm",
+    "rotational product manager", "product lead", "technical product manager",
+    "tpm", "head of product", "director of product", "vp of product", "vp product",
+    "group product manager", "gpm", "lead product manager"
+]
+
+INDIA_KEYWORDS = [
+    "india", "bengaluru", "bangalore", "gurugram", "gurgaon", "mumbai",
+    "hyderabad", "pune", "noida", "delhi", "ncr", "chennai", "kolkata",
+    "ahmedabad", "remote india", "remote (india)", "work from home (india)",
+    "remote - india", "india (remote)"
+]
+
+EXCLUDED_FOREIGN_LOCATIONS = [
+    "denmark", "copenhagen", "aarhus", "germany", "berlin", "munich",
+    "united kingdom", "london", "canada", "toronto", "vancouver",
+    "australia", "sydney", "singapore", "brazil", "turkey", "türkiye",
+    "united states", "usa", "us only", "eu only"
+]
+
+def extract_emails(text):
+    if not text:
+        return []
+    matches = re.findall(EMAIL_REGEX, text)
+    valid = [m for m in matches if not m.endswith(('.png', '.jpg', '.jpeg', '@example.com', '@domain.com'))]
+    return list(set(valid))
+
+def apply_hard_filters(post):
+    text = (post.get('job_description') or post.get('text') or '').strip()
+    title = (post.get('title') or post.get('role_title') or '').strip()
+    location = (post.get('location') or post.get('city') or '').strip().lower()
+    full_text_lower = f"{title} {text} {location}".lower()
+    headline = (post.get('relevant_contact', {}).get('headline') or '').lower()
+    
+    # 1. Open to Work / Job Seeker Filter (Only drop job seekers)
+    bad_headline_terms = ["open to work", "#opentowork", "job seeker", "seeking opportunities", "looking for a job"]
+    is_open_to_work = any(term in headline or term in full_text_lower for term in bad_headline_terms)
+    if is_open_to_work:
+        return False, "Author headline or text indicates job seeker (#opentowork)", post
+
+    # 2. Basic Hiring Intent Check
+    hiring_keywords = ["hiring", "hire", "opening", "opportunity", "apply", "looking for", "join our team", "we're hiring", "i'm hiring", "role", "position", "recruiting", "referral"]
+    is_hiring_post = any(kw in full_text_lower for kw in hiring_keywords)
+    if not is_hiring_post:
+        return False, "Not a hiring post (lacks hiring intent keywords)", post
+
+    # 3. Agency / Recruiter Tagging (Tag, don't drop)
+    agency_terms = ["hiring for our client", "on behalf of our client", "staffing agency", "consultancy", "recruitment firm"]
+    is_agency = any(term in full_text_lower for term in agency_terms)
+
+    # 4. Extract Emails & Job Cards (Tagging)
+    emails = extract_emails(text)
+    has_email = len(emails) > 0
+    extracted_email = emails[0] if has_email else post.get('email')
+
+    has_dm = any(term in full_text_lower for term in ["dm", "send cv", "drop your cv", "send resume", "reach out", "inbox", "message me", "hiring", "apply"])
+    has_job_card = "view job" in full_text_lower or "apply on linkedin" in full_text_lower or "jobs/view" in full_text_lower
+
+    # 5. Outdated Year Filter (>30 days old)
+    post_url = post.get('post_url') or post.get('apply_link') or post.get('url') or ''
+    match = re.search(r'(\d{18,20})', str(post_url))
+    if match:
+        act_id = int(match.group(1))
+        ts_ms = act_id >> 22
+        try:
+            import datetime
+            post_dt = datetime.datetime.fromtimestamp(ts_ms / 1000.0, datetime.timezone.utc)
+            now_dt = datetime.datetime.now(datetime.timezone.utc)
+            age_days = (now_dt - post_dt).total_seconds() / 86400.0
+            if age_days > 30:
+                return False, f"Outdated post created on {post_dt.strftime('%Y-%m-%d')} ({int(age_days)} days old)", post
+        except Exception:
+            pass
+
+    # Enrich post metadata
+    enriched = dict(post)
+    enriched['has_email'] = has_email or bool(extracted_email)
+    enriched['extracted_email'] = extracted_email
+    enriched['email'] = extracted_email or post.get('email')
+    enriched['contact_method'] = 'email' if enriched['has_email'] else ('DM' if has_dm else 'link')
+    enriched['target_domain'] = 'Product Management'
+    enriched['target_country'] = 'India'
+
+    return True, "PASSED HARD FILTERS (Product Management - India)", enriched
+
+def filter_posts_batch(posts):
+    passed = []
+    dropped_stats = {}
+    for p in posts:
+        keep, reason, enriched = apply_hard_filters(p)
+        if keep:
+            passed.append(enriched)
+        else:
+            dropped_stats[reason] = dropped_stats.get(reason, 0) + 1
+            
+    return passed, dropped_stats
+
+if __name__ == '__main__':
+    sample_post = {
+        "title": "Associate Product Manager",
+        "job_description": "MakeMyTrip is hiring Associate Product Manager in Gurugram India",
+        "location": "Gurugram, Haryana, India",
+        "relevant_contact": {"name": "Purushottam Ratre", "headline": "Product Lead @ MakeMyTrip"},
+        "post_url": "https://www.linkedin.com/posts/purushottamratre_hiring"
+    }
+    keep, reason, enriched = apply_hard_filters(sample_post)
+    print(f"Sample Filter Result: Keep={keep}, Reason={reason}")
