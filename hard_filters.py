@@ -79,39 +79,65 @@ def apply_hard_filters(post):
     has_dm = any(term in full_text_lower for term in ["dm", "send cv", "drop your cv", "send resume", "reach out", "inbox", "message me", "hiring", "apply"])
     has_job_card = "view job" in full_text_lower or "apply on linkedin" in full_text_lower or "jobs/view" in full_text_lower
 
-    # 5. Mathematical Activity ID Recency & Archive Tagging
-    post_url = post.get('post_url') or post.get('apply_link') or post.get('url') or ''
+    # 5. Recency & Archive Tagging (Activity ID -> Date String Fallback)
+    post_url = post.get('post_url') or post.get('job_url') or post.get('apply_link') or post.get('url') or ''
     match = re.search(r'(\d{18,20})', str(post_url))
     
-    is_archived = post.get('archived', False)
-    status_label = post.get('status', 'Fresh')
-    age_days_val = post.get('age_days', 1.0)
+    age_days_val = None
+    import datetime
+    now_dt = datetime.datetime.now(datetime.timezone.utc)
 
     if match:
         act_id = int(match.group(1))
         ts_ms = act_id >> 22
         try:
-            import datetime
             post_dt = datetime.datetime.fromtimestamp(ts_ms / 1000.0, datetime.timezone.utc)
-            now_dt = datetime.datetime.now(datetime.timezone.utc)
             age_days_val = round((now_dt - post_dt).total_seconds() / 86400.0, 1)
-            
-            # Drop obsolete historical posts from 2025/2024 (>90 days old)
-            if age_days_val > 90:
-                return False, f"Obsolete post created on {post_dt.strftime('%Y-%m-%d')} ({int(age_days_val)} days old)", post
-                
-            # Archive posts older than 7 days
-            if age_days_val > 7.0:
-                is_archived = True
-                status_label = "Archived"
-            else:
-                is_archived = False
-                status_label = "Fresh"
         except Exception:
             pass
 
+    if age_days_val is None:
+        dp = str(post.get('date_posted') or post.get('posted_at') or '').strip()
+        if dp and dp.lower() not in ['none', 'nan', 'unknown', '']:
+            if re.match(r'^\d{4}-\d{2}-\d{2}', dp):
+                try:
+                    p_dt = datetime.datetime.strptime(dp[:10], '%Y-%m-%d').replace(tzinfo=datetime.timezone.utc)
+                    age_days_val = round((now_dt - p_dt).total_seconds() / 86400.0, 1)
+                except Exception:
+                    pass
+            elif any(k in dp.lower() for k in ['hour', 'min', '24h', 'just now', 'today']):
+                age_days_val = 0.5
+            elif 'day' in dp.lower():
+                d_match = re.search(r'(\d+)\s*day', dp.lower())
+                age_days_val = float(d_match.group(1)) if d_match else 1.0
+
+    if age_days_val is None:
+        try:
+            age_days_val = float(post.get('age_days'))
+        except (TypeError, ValueError):
+            age_days_val = 1.0
+
+    # Drop obsolete historical posts (>90 days old)
+    if age_days_val > 90:
+        return False, f"Obsolete post created {int(age_days_val)} days ago", post
+
+    is_archived = age_days_val > 7.0
+    status_label = "Archived" if is_archived else "Fresh"
+
     # Enrich post metadata
     enriched = dict(post)
+    role_name = post.get('role_title') or post.get('title') or post.get('role') or 'Product Manager'
+    company_name = post.get('company') or post.get('company_name') or 'Tech Company'
+    post_url_val = post.get('post_url') or post.get('job_url') or post.get('apply_url') or post.get('url') or ''
+    posted_at_val = post.get('posted_at') or post.get('date_posted') or 'Past 24 hours'
+
+    enriched['role_title'] = role_name
+    enriched['title'] = role_name
+    enriched['role'] = role_name
+    enriched['company'] = company_name
+    enriched['company_name'] = company_name
+    enriched['post_url'] = post_url_val
+    enriched['posted_at'] = posted_at_val
     enriched['has_email'] = has_email or bool(extracted_email)
     enriched['extracted_email'] = extracted_email
     enriched['email'] = extracted_email or post.get('email')

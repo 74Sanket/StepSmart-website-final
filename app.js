@@ -223,9 +223,11 @@ function getValidLinkedInUrl(url, role, company) {
 
 function createJobCardHTML(job) {
   const contact = job.relevant_contact || {};
-  const initials = getInitials(contact.name || job.author_name);
-  const posterName = contact.name || job.author_name || 'Hiring Manager';
-  const headline = contact.headline || job.author_title || 'Product Leader';
+  const rawPosterName = contact.name || job.author_name;
+  const posterName = (rawPosterName && rawPosterName !== 'None' && rawPosterName !== 'Hiring Manager') ? rawPosterName : (job.company ? `${job.company} Hiring Team` : 'Hiring Team');
+  const rawHeadline = contact.headline || job.author_title;
+  const headline = (rawHeadline && rawHeadline !== 'None' && rawHeadline !== 'Product Leader') ? rawHeadline : (job.source ? `Recruiter / Hiring Lead (${job.source})` : 'Product Leader');
+  const initials = getInitials(posterName);
   const email = job.email || job.extracted_email;
   const score = job.quality_score || 85;
   const currentAction = studentActions[job.job_id] || '';
@@ -313,9 +315,14 @@ function openModal(jobId) {
   document.getElementById('modalLocation').textContent = job.location || 'Remote';
   document.getElementById('modalScore').textContent = `Quality Score: ${job.quality_score || 85}/100`;
 
-  document.getElementById('modalPosterAvatar').textContent = getInitials(contact.name || job.author_name);
-  document.getElementById('modalPosterName').textContent = contact.name || job.author_name || 'Hiring Manager';
-  document.getElementById('modalPosterHeadline').textContent = contact.headline || job.author_title || 'Product Leader';
+  const rawPosterName = contact.name || job.author_name;
+  const posterName = (rawPosterName && rawPosterName !== 'None' && rawPosterName !== 'Hiring Manager') ? rawPosterName : (job.company ? `${job.company} Hiring Team` : 'Hiring Team');
+  const rawHeadline = contact.headline || job.author_title;
+  const headline = (rawHeadline && rawHeadline !== 'None' && rawHeadline !== 'Product Leader') ? rawHeadline : (job.source ? `Recruiter / Hiring Lead (${job.source})` : 'Product Leader');
+
+  document.getElementById('modalPosterAvatar').textContent = getInitials(posterName);
+  document.getElementById('modalPosterName').textContent = posterName;
+  document.getElementById('modalPosterHeadline').textContent = headline;
   
   const profileBtn = document.getElementById('modalPosterLink');
   profileBtn.href = getValidLinkedInUrl(contact.profile_url || postUrl, job.role_title || job.role, job.company);

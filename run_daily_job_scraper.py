@@ -90,8 +90,12 @@ def run_daily_pipeline():
     csv_path = "strict_pm_jobs_all_portals_india.csv"
     strict_df.to_csv(csv_path, index=False)
 
-    # Prepare normalized objects for Web App UI (data/jobs.json)
-    web_jobs = []
+    from job_card_resolver import standardize_schema
+    from hard_filters import apply_hard_filters
+    from gsheets_sync import export_to_json, export_to_csv
+
+    # Prepare normalized objects for Web App UI
+    raw_web_jobs = []
     for idx, row in strict_df.reset_index(drop=True).iterrows():
         job_id = f"job-{idx+1}"
         company = str(row.get('company') or 'Hiring Company').strip()
@@ -102,32 +106,47 @@ def run_daily_pipeline():
         date_str = str(row.get('date_posted') or datetime.now().strftime('%Y-%m-%d'))
         emails_list = row.get('emails') if isinstance(row.get('emails'), list) else []
 
-        web_jobs.append({
+        raw_desc = str(row.get('description') or '').strip()
+        if raw_desc.lower() in ['nan', 'none', 'null', '']:
+            raw_desc = f"{title} opening at {company} ({loc}). Source: {site_name}. Direct link: {url}"
+
+        raw_web_jobs.append({
+            "job_id": job_id,
             "id": job_id,
             "title": title,
+            "role_title": title,
             "company": company,
             "company_name": company,
             "location": loc,
             "site": site_name,
+            "post_url": url,
             "job_url": url,
             "apply_url": url,
             "date_posted": date_str,
+            "posted_at": date_str,
             "has_email": len(emails_list) > 0,
             "email": emails_list[0] if len(emails_list) > 0 else None,
+            "extracted_email": emails_list[0] if len(emails_list) > 0 else None,
             "emails": emails_list,
-            "contact_method": "Email" if len(emails_list) > 0 else "Direct Link",
-            "quality_score": 90 if "Senior" in title or "Lead" in title else 85,
-            "job_description": str(row.get('description') or f"{title} at {company} ({loc}). Source: {site_name}"),
-            "seniority": "Senior" if "Senior" in title or "Lead" in title else ("APM" if "Associate" in title or "APM" in title else "Mid-Level"),
+            "contact_method": "Email" if len(emails_list) > 0 else "DM",
+            "quality_score": 90 if any(k in title for k in ["Senior", "Lead", "Director"]) else 85,
+            "job_description": raw_desc,
+            "text": raw_desc,
+            "seniority": "Senior PM" if "Senior" in title or "Lead" in title else ("Associate / APM" if "Associate" in title or "APM" in title else "Product Manager"),
+            "seniority_fit": "0-2y" if ("Associate" in title or "APM" in title or "Analyst" in title or "Intern" in title) else "Senior / All"
         })
 
-    os.makedirs("data", exist_ok=True)
-    json_path = os.path.join("data", "jobs.json")
-    
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(web_jobs, f, indent=2, default=str)
+    processed_web_jobs = []
+    for item in raw_web_jobs:
+        std = standardize_schema(item)
+        keep, reason, enriched = apply_hard_filters(std)
+        if keep:
+            processed_web_jobs.append(enriched)
 
-    print(f"\n✅ Pipeline Success! {len(web_jobs)} verified PM jobs updated in {csv_path} and {json_path}")
+    final_dataset = export_to_json(processed_web_jobs)
+    export_to_csv(final_dataset)
+
+    print(f"\n✅ Pipeline Success! {len(final_dataset)} verified PM jobs updated in data/jobs.json and data/pm_jobs_google_sheets.csv")
 
 if __name__ == "__main__":
     run_daily_pipeline()

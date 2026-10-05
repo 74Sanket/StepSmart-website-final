@@ -60,32 +60,52 @@ def standardize_schema(post):
     else:
         author_type = "employee"
         
-    role_name = post.get('role_title') or post.get('seniority') or "Product Manager"
-    company_name = post.get('company') or "Tech Company"
+    role_name = post.get('role_title') or post.get('title') or post.get('role') or "Product Manager"
+    company_name = post.get('company') or post.get('company_name') or "Tech Company"
 
     raw_post_url = post.get('post_url') or post.get('job_url') or post.get('apply_url') or post.get('apply_link') or post.get('url') or post.get('link') or post.get('postUrl') or ''
     if not raw_post_url or not str(raw_post_url).startswith(('http://', 'https://')):
         encoded_q = urllib.parse.quote(f'"{role_name}" {company_name} hiring')
         raw_post_url = f"https://www.linkedin.com/search/results/content/?keywords={encoded_q}&sortBy=%22date_posted%22"
 
-    raw_apply_url = post.get('apply_url') or post.get('apply_link') or raw_post_url
+    raw_apply_url = post.get('apply_url') or post.get('apply_link') or post.get('job_url') or raw_post_url
     if not str(raw_apply_url).startswith(('http://', 'https://')):
         raw_apply_url = raw_post_url
 
+    raw_desc = str(post.get('job_description') or post.get('text') or post.get('description') or '').strip()
+    if raw_desc.lower() in ['nan', 'none', 'null', '']:
+        raw_desc = f"{role_name} opening at {company_name} ({post.get('location') or 'India'}). Direct application link: {raw_apply_url}"
+
+    posted_at_val = post.get('posted_at') or post.get('date_posted') or "Past 24 hours"
+
+    contact = post.get('relevant_contact') or {
+        "name": author_name,
+        "headline": author_headline,
+        "profile_url": f"https://www.linkedin.com/search/results/people/?keywords={urllib.parse.quote(author_name)}"
+    }
+
     standardized = {
-        "job_id": post.get('job_id') or post.get('job_card_id') or f"post_{hash(raw_post_url)}",
+        "job_id": post.get('job_id') or post.get('id') or post.get('job_card_id') or f"post_{hash(raw_post_url)}",
         "post_url": raw_post_url,
         "author": author_name,
         "author_name": author_name,
         "author_title": author_headline,
         "author_type": author_type,
+        "relevant_contact": contact,
         "company": company_name,
+        "company_name": company_name,
         "role": role_name,
         "role_title": role_name,
+        "title": role_name,
         "location": post.get('location') or "India",
-        "posted_at": post.get('posted_at') or "Past 24 hours",
+        "posted_at": posted_at_val,
+        "date_posted": post.get('date_posted') or posted_at_val,
+        "age_days": post.get('age_days'),
+        "archived": post.get('archived'),
+        "status": post.get('status'),
         "scraped_at": post.get('scraped_at') or "",
-        "job_description": post.get('job_description') or post.get('text') or '',
+        "job_description": raw_desc,
+        "text": raw_desc,
         "email": post.get('email') or post.get('extracted_email') or '',
         "has_email": post.get('has_email', False),
         "has_job_card": post.get('has_job_card', False),
@@ -93,10 +113,11 @@ def standardize_schema(post):
         "apply_url": raw_apply_url,
         "apply_link": raw_apply_url,
         "contact_method": post.get('contact_method') or ("email" if post.get('has_email') else ("job_card" if post.get('has_job_card') else "DM")),
-        "source": post.get('source') or "apify_serp",
+        "source": post.get('source') or post.get('site') or "apify_serp",
         "query_id": post.get('query_id') or "q_wide_01",
-        "seniority_fit": post.get('seniority_fit') or "0-2y",
-        "quality_score": post.get('quality_score') or 75
+        "seniority": post.get('seniority') or ("Associate / APM" if "APM" in role_name or "Associate" in role_name else "Senior PM"),
+        "seniority_fit": post.get('seniority_fit') or ("0-2y" if "APM" in role_name or "Associate" in role_name or "Analyst" in role_name or "Intern" in role_name else "Senior / All"),
+        "quality_score": post.get('quality_score') or 85
     }
     
     return standardized
