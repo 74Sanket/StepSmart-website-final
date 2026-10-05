@@ -62,6 +62,11 @@ def apply_hard_filters(post):
     if not is_hiring_post:
         return False, "Not a hiring post (lacks hiring intent keywords)", post
 
+    # Drop synthetic watchlist search fallback links
+    raw_url = post.get('post_url') or post.get('url') or post.get('apply_link') or ''
+    if "linkedin.com/search/" in str(raw_url).lower() and (not title or title.lower() in ['none', 'null', '']):
+        return False, "Synthetic watchlist search link without post content", post
+
     # 3. Agency / Recruiter Tagging (Tag, don't drop)
     agency_terms = ["hiring for our client", "on behalf of our client", "staffing agency", "consultancy", "recruitment firm"]
     is_agency = any(term in full_text_lower for term in agency_terms)
@@ -74,9 +79,14 @@ def apply_hard_filters(post):
     has_dm = any(term in full_text_lower for term in ["dm", "send cv", "drop your cv", "send resume", "reach out", "inbox", "message me", "hiring", "apply"])
     has_job_card = "view job" in full_text_lower or "apply on linkedin" in full_text_lower or "jobs/view" in full_text_lower
 
-    # 5. Outdated Year Filter (>30 days old)
+    # 5. Mathematical Activity ID Recency & Archive Tagging
     post_url = post.get('post_url') or post.get('apply_link') or post.get('url') or ''
     match = re.search(r'(\d{18,20})', str(post_url))
+    
+    is_archived = post.get('archived', False)
+    status_label = post.get('status', 'Fresh')
+    age_days_val = post.get('age_days', 1.0)
+
     if match:
         act_id = int(match.group(1))
         ts_ms = act_id >> 22
@@ -84,9 +94,19 @@ def apply_hard_filters(post):
             import datetime
             post_dt = datetime.datetime.fromtimestamp(ts_ms / 1000.0, datetime.timezone.utc)
             now_dt = datetime.datetime.now(datetime.timezone.utc)
-            age_days = (now_dt - post_dt).total_seconds() / 86400.0
-            if age_days > 30:
-                return False, f"Outdated post created on {post_dt.strftime('%Y-%m-%d')} ({int(age_days)} days old)", post
+            age_days_val = round((now_dt - post_dt).total_seconds() / 86400.0, 1)
+            
+            # Drop obsolete historical posts from 2025/2024 (>90 days old)
+            if age_days_val > 90:
+                return False, f"Obsolete post created on {post_dt.strftime('%Y-%m-%d')} ({int(age_days_val)} days old)", post
+                
+            # Archive posts older than 7 days
+            if age_days_val > 7.0:
+                is_archived = True
+                status_label = "Archived"
+            else:
+                is_archived = False
+                status_label = "Fresh"
         except Exception:
             pass
 
@@ -98,8 +118,11 @@ def apply_hard_filters(post):
     enriched['contact_method'] = 'email' if enriched['has_email'] else ('DM' if has_dm else 'link')
     enriched['target_domain'] = 'Product Management'
     enriched['target_country'] = 'India'
+    enriched['archived'] = is_archived
+    enriched['status'] = status_label
+    enriched['age_days'] = age_days_val
 
-    return True, "PASSED HARD FILTERS (Product Management - India)", enriched
+    return True, f"PASSED HARD FILTERS ({status_label} - {age_days_val}d old)", enriched
 
 def filter_posts_batch(posts):
     passed = []

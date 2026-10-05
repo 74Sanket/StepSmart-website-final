@@ -81,27 +81,30 @@ async function loadJobsData() {
 }
 
 function updateTabCounts() {
-  const fresherCount = allJobs.filter(j => j.seniority_fit === 'fresher' || j.seniority_fit === '0-2y' || !j.seniority_fit).length;
-  const freshEmailCount = allJobs.filter(j => j.has_email || (j.email && j.email.length > 0)).length;
-  const founderCount = allJobs.filter(j => j.author_type === 'founder' || j.author_type === 'hiring_manager' || j.author_is_decision_maker).length;
-  const jobCardCount = allJobs.filter(j => j.has_job_card).length;
+  const activeJobs = allJobs.filter(j => !j.archived && (j.age_days === undefined || j.age_days <= 7.0));
+  const archivedJobs = allJobs.filter(j => j.archived || (j.age_days !== undefined && j.age_days > 7.0));
+
+  const fresherCount = activeJobs.filter(j => j.seniority_fit === 'fresher' || j.seniority_fit === '0-2y' || !j.seniority_fit).length;
+  const freshEmailCount = activeJobs.filter(j => j.has_email || (j.email && j.email.length > 0)).length;
+  const founderCount = activeJobs.filter(j => j.author_type === 'founder' || j.author_type === 'hiring_manager' || j.author_is_decision_maker).length;
   
   if (document.getElementById('countFresher')) document.getElementById('countFresher').textContent = fresherCount;
   if (document.getElementById('countFreshEmail')) document.getElementById('countFreshEmail').textContent = freshEmailCount;
   if (document.getElementById('countFounder')) document.getElementById('countFounder').textContent = founderCount;
-  if (document.getElementById('countJobCard')) document.getElementById('countJobCard').textContent = jobCardCount;
-  if (document.getElementById('countAll')) document.getElementById('countAll').textContent = allJobs.length;
+  if (document.getElementById('countAll')) document.getElementById('countAll').textContent = activeJobs.length;
+  if (document.getElementById('countArchived')) document.getElementById('countArchived').textContent = archivedJobs.length;
 }
 
 function updateStats() {
-  document.getElementById('statTotalJobs').textContent = allJobs.length;
+  const activeJobs = allJobs.filter(j => !j.archived && (j.age_days === undefined || j.age_days <= 7.0));
+  document.getElementById('statTotalJobs').textContent = activeJobs.length;
   
-  const freshEmail = allJobs.filter(j => j.has_email || j.email).length;
+  const freshEmail = activeJobs.filter(j => j.has_email || j.email).length;
   document.getElementById('statRecentJobs').textContent = freshEmail;
   document.getElementById('statApplyLinks').textContent = freshEmail;
 
-  const decisionMakers = allJobs.filter(j => j.author_is_decision_maker || j.author_type === 'founder' || j.author_type === 'hiring_manager').length;
-  document.getElementById('statContacts').textContent = decisionMakers || allJobs.length;
+  const decisionMakers = activeJobs.filter(j => j.author_is_decision_maker || j.author_type === 'founder' || j.author_type === 'hiring_manager').length;
+  document.getElementById('statContacts').textContent = decisionMakers || activeJobs.length;
 }
 
 function applyFilters() {
@@ -110,16 +113,22 @@ function applyFilters() {
   const locationVal = document.getElementById('locationFilter').value;
 
   filteredJobs = allJobs.filter(job => {
+    const isJobArchived = job.archived || (job.age_days !== undefined && job.age_days > 7.0);
+
     // 1. Tab View Filter
+    if (activeTab === 'archived') {
+      if (!isJobArchived) return false;
+    } else {
+      if (isJobArchived) return false; // Hide archived (>7d) jobs from active tabs
+    }
+
     const hasEmail = job.has_email || (job.email && job.email.length > 0);
     const isFresher = job.seniority_fit === 'fresher' || job.seniority_fit === '0-2y' || !job.seniority_fit;
     const isFounder = job.author_type === 'founder' || job.author_type === 'hiring_manager' || job.author_is_decision_maker;
-    const hasJobCard = job.has_job_card;
     
     if (activeTab === 'fresher-fit' && !isFresher) return false;
     if (activeTab === 'fresh-email' && !hasEmail) return false;
     if (activeTab === 'founder-posted' && !isFounder) return false;
-    if (activeTab === 'job-card' && !hasJobCard) return false;
 
     // 2. Search match
     const contactName = (job.relevant_contact?.name || job.author_name || job.author || '').toLowerCase();

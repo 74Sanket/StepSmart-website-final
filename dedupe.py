@@ -37,7 +37,17 @@ def deduplicate_posts(posts):
         # Key 3: Fuzzy text similarity comparison against unique_posts
         post_text = (post.get('job_description') or '').strip()
         is_fuzzy_duplicate = False
+        import re
+        act_match_current = re.search(r'(\d{18,20})', str(url_key))
+        
         for existing in unique_posts:
+            existing_url = existing.get('post_url') or existing.get('job_id') or ''
+            act_match_existing = re.search(r'(\d{18,20})', str(existing_url))
+            
+            # If both posts have distinct activity IDs, they are distinct LinkedIn posts
+            if act_match_current and act_match_existing and act_match_current.group(1) != act_match_existing.group(1):
+                continue
+                
             existing_text = (existing.get('job_description') or '').strip()
             if fuzzy_similarity(post_text, existing_text) >= 0.85:
                 is_fuzzy_duplicate = True

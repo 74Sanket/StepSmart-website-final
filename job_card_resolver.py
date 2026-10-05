@@ -63,7 +63,7 @@ def standardize_schema(post):
     role_name = post.get('role_title') or post.get('seniority') or "Product Manager"
     company_name = post.get('company') or "Tech Company"
 
-    raw_post_url = post.get('post_url') or post.get('url') or post.get('link') or post.get('postUrl') or ''
+    raw_post_url = post.get('post_url') or post.get('job_url') or post.get('apply_url') or post.get('apply_link') or post.get('url') or post.get('link') or post.get('postUrl') or ''
     if not raw_post_url or not str(raw_post_url).startswith(('http://', 'https://')):
         encoded_q = urllib.parse.quote(f'"{role_name}" {company_name} hiring')
         raw_post_url = f"https://www.linkedin.com/search/results/content/?keywords={encoded_q}&sortBy=%22date_posted%22"
