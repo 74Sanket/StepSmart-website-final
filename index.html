@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PM Hidden-Jobs Engine | Fresh LinkedIn Hiring Posts for Freshers</title>
+  <title>PM Hidden-Jobs Engine | Recent LinkedIn Hiring Posts</title>
   <meta name="description" content="Surfacing fresh LinkedIn hiring posts for PM freshers, APMs, Product Analysts & Interns with direct recruiter emails and DM invites.">
   
   <!-- Google Fonts -->
@@ -31,14 +31,14 @@
         </div>
         <div>
           <h1 class="brand-title">LinkedIn <span class="gradient-text">Hidden-Jobs Engine</span></h1>
-          <p class="brand-subtitle">Fresh PM Hiring Posts (<72h) • APMs, Analysts, Interns & 0-2y • Direct Emails & DMs</p>
+          <p class="brand-subtitle">Recent PM Hiring Posts (last 7 days) • Verified post dates • APMs, Analysts, Interns & 0-2y</p>
         </div>
       </div>
 
       <div class="header-actions">
         <div class="sync-badge" id="syncStatusBadge">
           <span class="status-pulse"></span>
-          <span id="syncStatusText">Auto-Refreshes 4h</span>
+          <span id="syncStatusText">Checking scrape status…</span>
         </div>
         
         <button id="syncNowBtn" class="btn btn-secondary">
@@ -163,13 +163,16 @@
 
     <!-- Main Job Cards Grid -->
     <main class="jobs-feed">
+      <div id="cachedFeedNotice" class="cache-notice hidden">
+        Cached preview from the previous scrape. The saved records include LinkedIn links and posting times, but not the original post bodies; use each LinkedIn link to verify the job details.
+      </div>
       <div id="jobsGrid" class="jobs-grid">
         <!-- Dynamic JS Rendered Job Cards -->
       </div>
       <div id="noResultsState" class="empty-state hidden">
         <div class="empty-icon">🔍</div>
-        <h3>No hiring posts found matching current tab or filters</h3>
-        <p>Try switching tabs or resetting your search query.</p>
+        <h3>No verified recent LinkedIn hiring posts found</h3>
+        <p>Run a live refresh to fetch posts with a verifiable posting date, or reset your filters.</p>
         <button id="resetFiltersBtn" class="btn btn-secondary">Reset Filters</button>
       </div>
     </main>
@@ -222,25 +225,20 @@
         <div class="drawer-body">
           <div class="config-section">
             <h3>🔑 Apify LinkedIn Scraper Token</h3>
-            <p class="field-desc">Apify API Token configured for 4-hour scheduled scraping runs.</p>
+            <p class="field-desc">Used by the live refresh button. The token is stored in this browser and sent to the local dashboard server.</p>
             <input type="password" id="apifyTokenInput" placeholder="apify_api_..." value="">
             <button id="saveApifyTokenBtn" class="btn btn-secondary btn-sm">Save Token</button>
           </div>
 
           <div class="config-section">
             <h3>📊 Google Sheets Direct Auto-Sync</h3>
-            <p class="field-desc">Configured Sheet ID for auto-populating fresh PM jobs.</p>
+            <p class="field-desc">Optional Google Sheets destination. Local JSON and CSV exports are updated by each successful scrape.</p>
             <input type="text" id="sheetIdInput" placeholder="1BxiMVs0XRA5nFMdKbB..." value="">
           </div>
 
           <div class="config-section">
             <h3>⏱️ Pipeline Schedule</h3>
-            <p class="field-desc">Background execution frequency (Current setting: Every 4 hours staggered)</p>
-            <select id="scheduleIntervalSelect">
-              <option value="4" selected>Every 4 Hours (Recommended)</option>
-              <option value="6">Every 6 Hours</option>
-              <option value="12">Every 12 Hours</option>
-            </select>
+            <p class="field-desc">Run <code>npm run scheduler</code> in a separate terminal for the six-hour scheduled refresh. The dashboard button runs a scrape immediately.</p>
           </div>
 
           <div class="config-section">

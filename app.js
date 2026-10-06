@@ -1,6 +1,6 @@
 /**
  * LinkedIn Hidden-Jobs Engine V2 - Client Dashboard Logic
- * Step 7 Views: Fresh (<24h) with Email, DM-Only, All Verified Jobs, Archived (>7d)
+ * Step 7 Views: Recent (<=7d), email, hiring manager, and archived views
  * Student Action Tracker: Emailed, Replied, Dead
  */
 
@@ -15,7 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function initApp() {
   setupEventListeners();
+  refreshSyncStatus();
   await loadJobsData();
+}
+
+async function refreshSyncStatus() {
+  try {
+    const res = await fetch('/api/status', { cache: 'no-store' });
+    if (!res.ok) return;
+    const status = await res.json();
+    const label = document.getElementById('syncStatusText');
+    if (!label) return;
+    if (status.running) label.textContent = 'Scrape in progress…';
+    else if (status.error) label.textContent = `Last scrape failed: ${status.error}`;
+    else if (status.last_success) label.textContent = `Last scrape: ${new Date(status.last_success).toLocaleString()} (${status.jobs ?? 0} current posts)`;
+    else label.textContent = 'Live scrape ready';
+  } catch (_) {
+    const label = document.getElementById('syncStatusText');
+    if (label) label.textContent = 'Start with npm start for live refresh';
+  }
 }
 
 function setupEventListeners() {
@@ -64,16 +82,19 @@ function setupEventListeners() {
 
 async function loadJobsData() {
   try {
-    const res = await fetch('data/jobs.json?t=' + Date.now());
+    const res = await fetch('data/linkedin_posts.json?t=' + Date.now(), { cache: 'no-store' });
     if (res.ok) {
       allJobs = await res.json();
     } else {
-      throw new Error('Fallback to default seed');
+      allJobs = [];
     }
   } catch (err) {
-    console.log('Loading fallback seed PM jobs dataset...');
-    allJobs = getSeedJobs();
+    console.error('Could not load the live LinkedIn-post feed.', err);
+    allJobs = [];
   }
+  const hasCachedPreview = allJobs.some(job => job.cached_result);
+  const cacheNotice = document.getElementById('cachedFeedNotice');
+  if (cacheNotice) cacheNotice.classList.toggle('hidden', !hasCachedPreview);
   
   updateTabCounts();
   updateStats();
@@ -81,8 +102,8 @@ async function loadJobsData() {
 }
 
 function updateTabCounts() {
-  const activeJobs = allJobs.filter(j => !j.archived && (j.age_days === undefined || j.age_days <= 7.0));
-  const archivedJobs = allJobs.filter(j => j.archived || (j.age_days !== undefined && j.age_days > 7.0));
+  const activeJobs = allJobs.filter(j => getJobAgeDays(j) !== null && getJobAgeDays(j) <= 7.0);
+  const archivedJobs = allJobs.filter(j => getJobAgeDays(j) !== null && getJobAgeDays(j) > 7.0);
 
   const fresherCount = activeJobs.filter(j => j.seniority_fit === 'fresher' || j.seniority_fit === '0-2y' || !j.seniority_fit).length;
   const freshEmailCount = activeJobs.filter(j => j.has_email || (j.email && j.email.length > 0)).length;
@@ -96,7 +117,7 @@ function updateTabCounts() {
 }
 
 function updateStats() {
-  const activeJobs = allJobs.filter(j => !j.archived && (j.age_days === undefined || j.age_days <= 7.0));
+  const activeJobs = allJobs.filter(j => getJobAgeDays(j) !== null && getJobAgeDays(j) <= 7.0);
   document.getElementById('statTotalJobs').textContent = activeJobs.length;
   
   const freshEmail = activeJobs.filter(j => j.has_email || j.email).length;
@@ -104,7 +125,7 @@ function updateStats() {
   document.getElementById('statApplyLinks').textContent = freshEmail;
 
   const decisionMakers = activeJobs.filter(j => j.author_is_decision_maker || j.author_type === 'founder' || j.author_type === 'hiring_manager').length;
-  document.getElementById('statContacts').textContent = decisionMakers || activeJobs.length;
+  document.getElementById('statContacts').textContent = decisionMakers;
 }
 
 function applyFilters() {
@@ -113,7 +134,9 @@ function applyFilters() {
   const locationVal = document.getElementById('locationFilter').value;
 
   filteredJobs = allJobs.filter(job => {
-    const isJobArchived = job.archived || (job.age_days !== undefined && job.age_days > 7.0);
+    const ageDays = getJobAgeDays(job);
+    if (ageDays === null) return false;
+    const isJobArchived = ageDays > 7.0;
 
     // 1. Tab View Filter
     if (activeTab === 'archived') {
@@ -151,10 +174,20 @@ function applyFilters() {
     return matchesSearch && matchesSeniority && matchesLocation;
   });
 
-  // Sort by Quality Score descending
-  filteredJobs.sort((a, b) => (b.quality_score || 80) - (a.quality_score || 80));
+  // Show the newest verified posts first, with quality as a tie-breaker.
+  filteredJobs.sort((a, b) => getJobAgeDays(a) - getJobAgeDays(b) || (b.quality_score || 80) - (a.quality_score || 80));
 
   renderJobsGrid(filteredJobs);
+}
+
+function getJobAgeDays(job) {
+  const posted = Date.parse(job.posted_at || job.date_posted || '');
+  if (Number.isFinite(posted)) return (Date.now() - posted) / 86400000;
+  const scraped = Date.parse(job.scraped_at || '');
+  if (Number.isFinite(job.age_days) && Number.isFinite(scraped)) {
+    return Number(job.age_days) + Math.max(0, Date.now() - scraped) / 86400000;
+  }
+  return null;
 }
 
 function resetFilters() {
@@ -247,8 +280,9 @@ function createJobCardHTML(job) {
       <div class="job-card-header">
         <div class="badges-row">
           <span class="badge badge-seniority">${escapeHTML(job.role_title || job.seniority || 'Associate PM')}</span>
+          ${job.cached_result ? '<span class="badge badge-cached">CACHED</span>' : ''}
           <span class="badge badge-location">${escapeHTML(job.location || 'Remote')}</span>
-          <span class="badge badge-score">Score: ${score}/100</span>
+          ${job.cached_result ? '' : `<span class="badge badge-score">Score: ${score}/100</span>`}
         </div>
         <span class="job-time">${escapeHTML(job.posted_at || 'Past 24h')}</span>
       </div>
@@ -265,7 +299,7 @@ function createJobCardHTML(job) {
 
       <div class="job-body">
         <p class="job-text-snippet">${escapeHTML(job.job_description || '')}</p>
-        <button class="read-more-btn" data-job-id="${job.job_id}">Read full post &rarr;</button>
+        <button class="read-more-btn" data-job-id="${job.job_id}">${job.cached_result ? 'View cached details' : 'Read full post'} &rarr;</button>
       </div>
 
       <div class="student-actions-bar">
@@ -366,14 +400,30 @@ async function triggerApifySync() {
   btn.innerHTML = `<span class="status-pulse"></span> Running Pipeline...`;
   btn.disabled = true;
 
-  showNotification('Executing Step 1-5 Pipeline (Scrape -> Filter -> Score -> Dedupe)...');
-
-  setTimeout(() => {
+  try {
+    const token = localStorage.getItem('APIFY_API_KEY') || '';
+    const started = await fetch('/api/sync', { method: 'POST', headers: token ? { 'Authorization': `Bearer ${token}` } : {} });
+    if (!started.ok) throw new Error(started.status === 409 ? 'A scrape is already running.' : 'Could not start scrape.');
+    showNotification('Scrape started. Waiting for verified recent posts…');
+    for (let i = 0; i < 180; i++) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const response = await fetch('/api/status', { cache: 'no-store' });
+      const status = await response.json();
+      if (!status.running) {
+        if (status.error) throw new Error(status.error);
+        await loadJobsData();
+        showNotification(`Scrape complete: ${status.jobs ?? 0} recent posts in the latest run.`);
+        break;
+      }
+      if (i === 179) showNotification('Scrape is still running. Check the sync status shortly.');
+    }
+  } catch (error) {
+    showNotification(`Refresh failed: ${error.message}`);
+  } finally {
     btn.innerHTML = originalHTML;
     btn.disabled = false;
-    showNotification('Pipeline execution complete! Surfaced fresh PM hiring posts.');
-    loadJobsData();
-  }, 1500);
+    refreshSyncStatus();
+  }
 }
 
 function exportToCsv() {

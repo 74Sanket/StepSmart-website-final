@@ -883,3 +883,19 @@ body {
     grid-template-columns: 1fr;
   }
 }
+.cache-notice {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  border-radius: 10px;
+  background: rgba(120, 83, 9, 0.18);
+  color: #fde68a;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.badge-cached {
+  color: #fde68a;
+  border: 1px solid rgba(251, 191, 36, 0.45);
+  background: rgba(120, 83, 9, 0.18);
+}
