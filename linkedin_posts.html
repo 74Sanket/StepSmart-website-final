@@ -53,10 +53,10 @@
     <!-- Top Navigation Switcher between the Two Dashboards -->
     <nav class="nav-tabs-header">
       <a href="index.html" class="nav-tab-link">
-        <span>⚡</span> Daily Verified PM Job Board (JobSpy Automated - 400+ Jobs)
+        <span>📊</span> Panel 1: Verified Job Board Table (JobSpy Scraped)
       </a>
       <a href="linkedin_posts.html" class="nav-tab-link active">
-        <span>📩</span> LinkedIn Recruiter Posts & Outreach Engine
+        <span>📩</span> Panel 2: LinkedIn Recruiter Hiring Posts Engine
       </a>
     </nav>
 
@@ -228,14 +228,40 @@
     <div id="detailModal" class="modal-backdrop hidden">
       <div class="modal-content" style="max-width: 650px;">
         <div class="modal-header">
-          <div>
-            <h2 id="modalTitle" class="modal-title">LinkedIn Hiring Post</h2>
-            <p id="modalCompany" style="color: var(--accent-cyan); font-weight: 600; font-size: 15px;">Author</p>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div id="modalPosterAvatar" class="company-logo-avatar">U</div>
+            <div>
+              <h2 id="modalTitle" class="modal-title">LinkedIn Hiring Post</h2>
+              <p id="modalPosterName" style="color: var(--accent-cyan); font-weight: 600; font-size: 15px;">Author</p>
+              <p id="modalPosterHeadline" style="color: var(--text-secondary); font-size: 12px;"></p>
+            </div>
           </div>
           <button id="closeModalBtn" class="close-btn">&times;</button>
         </div>
+
         <div class="modal-body" style="padding: 20px 24px;">
-          <div id="modalDescription" style="white-space: pre-wrap; font-size: 14px; color: var(--text-primary); line-height: 1.6; max-height: 280px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 14px; border-radius: var(--radius-sm);"></div>
+          <div class="meta-row" style="margin-bottom: 16px;">
+            <span class="meta-item">📍 <span id="modalLocation">Location</span></span>
+            <span class="meta-item">💼 <span id="modalSeniority">Seniority</span></span>
+            <span class="meta-item">⭐ Score: <span id="modalScore">80</span></span>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <h4 style="color: var(--text-secondary); margin-bottom: 8px; font-size: 13px; text-transform: uppercase;">Post Details</h4>
+            <div id="modalDescription" style="white-space: pre-wrap; font-size: 14px; color: var(--text-primary); line-height: 1.6; max-height: 280px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 14px; border-radius: var(--radius-sm);"></div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+            <a id="modalPosterLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 10px 18px;">
+              View Poster Profile
+            </a>
+            <a id="modalLinkedInPostBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="padding: 10px 18px;">
+              Open Post
+            </a>
+            <a id="modalApplyBtn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 10px 20px;">
+              Outreach / DM ➔
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -249,6 +275,7 @@
         </div>
         <div class="drawer-body">
           <p style="color: var(--text-secondary); font-size: 14px;">Brave Search API & Apify configuration.</p>
+          <textarea id="appsScriptCode" style="display: none;"></textarea>
           <button id="copyAppsScriptBtn" class="btn btn-secondary" style="margin-top: 12px; width: 100%;">Copy Apps Script</button>
         </div>
       </div>

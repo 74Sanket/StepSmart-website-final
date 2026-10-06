@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function initJobSpyApp() {
   setupEventListeners();
+  setView('table'); // Explicitly initialize table view panel
   await loadJobsData();
   checkAutomationStatus();
 }
@@ -111,7 +112,9 @@ function setView(viewMode) {
     if (jobsGrid) jobsGrid.classList.remove('hidden');
     if (tableViewContainer) tableViewContainer.classList.add('hidden');
   }
-  renderJobs();
+  if (allJobs.length > 0) {
+    renderJobs();
+  }
 }
 
 async function loadJobsData() {
@@ -195,14 +198,10 @@ function applyFilters() {
     const dateStr = job.date_posted || job.posted_at || '';
 
     // Calculate age in days if possible
-    let ageDays = 999;
+    let ageDays = 0;
     const parsedDate = Date.parse(dateStr);
     if (Number.isFinite(parsedDate)) {
-      ageDays = (nowMs - parsedDate) / 86400000;
-    } else if (/24h|1 day|today/i.test(dateStr)) {
-      ageDays = 0.5;
-    } else if (/2 days|3 days/i.test(dateStr)) {
-      ageDays = 2;
+      ageDays = Math.max(0, (nowMs - parsedDate) / 86400000);
     }
 
     // 1. Tab filter
