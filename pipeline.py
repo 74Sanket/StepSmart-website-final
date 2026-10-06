@@ -16,7 +16,7 @@ import os
 import json
 import time
 from datetime import datetime, timezone
-from apify_scraper import fetch_linkedin_pm_posts, load_env_file, get_last_scrape_errors
+from apify_scraper import fetch_linkedin_pm_posts, load_env_file, get_last_scrape_errors, get_last_scrape_status
 from job_card_resolver import standardize_schema
 from hirer_watchlist import update_watchlist_from_posts
 from hard_filters import filter_posts_batch
@@ -34,6 +34,14 @@ def run_hidden_jobs_pipeline():
     # 1. Fetch Raw LinkedIn Posts
     raw_posts = fetch_linkedin_pm_posts(max_items=100)
     print(f"[PIPELINE STEP 1-2] Scraped {len(raw_posts)} raw LinkedIn post candidates.")
+    if get_last_scrape_status() == "skipped_budget_guard":
+        try:
+            with open(LINKEDIN_POSTS_JSON_PATH, 'r', encoding='utf-8') as existing:
+                cached = json.load(existing)
+        except (OSError, ValueError):
+            cached = []
+        print("[PIPELINE] Budget guard skipped Apify; returning saved feed without writing or syncing.")
+        return cached
     if not raw_posts and get_last_scrape_errors():
         raise RuntimeError("LinkedIn scrape failed before returning results; existing feed was left unchanged.")
 

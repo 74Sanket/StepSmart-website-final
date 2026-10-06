@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LinkedIn Hidden-Jobs Engine | Recruiter Posts & Outreach</title>
+  <meta name="description" content="Surfacing fresh LinkedIn hiring posts for PM freshers, APMs, Product Analysts & Interns with direct recruiter emails and DM invites.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .nav-tabs-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+    .nav-tab-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+    }
+    .nav-tab-link:hover {
+      color: var(--text-primary);
+      border-color: var(--border-highlight);
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .nav-tab-link.active {
+      color: #FFF;
+      background: var(--gradient-brand);
+      border-color: transparent;
+      box-shadow: var(--shadow-glow);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Top Navigation Switcher between the Two Dashboards -->
+    <nav class="nav-tabs-header">
+      <a href="index.html" class="nav-tab-link">
+        <span>⚡</span> Daily Verified PM Job Board (JobSpy Automated - 400+ Jobs)
+      </a>
+      <a href="linkedin_posts.html" class="nav-tab-link active">
+        <span>📩</span> LinkedIn Recruiter Posts & Outreach Engine
+      </a>
+    </nav>
+
+    <!-- Header Navbar -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 8V6C16 4.34315 14.6569 3 13 3H11C9.34315 3 8 4.34315 8 6V8M5 8H19C20.1046 8 21 8.89543 21 10V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V10C3 8.89543 3.89543 8 5 8Z" stroke="url(#paint0_linear)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="paint0_linear" x1="3" y1="3" x2="21" y2="21" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#38BDF8"/>
+                <stop offset="1" stop-color="#818CF8"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">LinkedIn <span class="gradient-text">Hidden-Jobs Engine</span></h1>
+          <p class="brand-subtitle">Surfacing organic recruiter hiring posts • Recruiter emails • Outreach & DM Invite Tracker</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <div class="sync-badge" id="syncStatusBadge">
+          <span class="status-pulse"></span>
+          <span id="syncStatusText">Checking scrape status…</span>
+        </div>
+        
+        <button id="syncNowBtn" class="btn btn-secondary">
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21.5 2v6h-6M2.13 15.57a10 10 0 1 0 4-13.68L2.13 6"/>
+          </svg>
+          Update Feed
+        </button>
+        
+        <button id="exportCsvBtn" class="btn btn-primary">
+          <svg class="btn-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="12" y1="18" x2="12" y2="12"></line>
+            <polyline points="9 15 12 18 15 15"></polyline>
+          </svg>
+          Export CSV
+        </button>
+
+        <button id="settingsBtn" class="btn btn-icon-only" title="Settings & Search Provider">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Metrics Summary Cards -->
+    <section class="stats-section">
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Verified PM Hiring Posts</span>
+          <span class="stat-icon icon-blue">💼</span>
+        </div>
+        <div class="stat-value" id="statTotalJobs">0</div>
+        <div class="stat-trend">Organic LinkedIn recruiter posts</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Fresh (< 24h) With Email</span>
+          <span class="stat-icon icon-purple">⚡</span>
+        </div>
+        <div class="stat-value" id="statRecentJobs">0</div>
+        <div class="stat-trend">Direct recruiter emails</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Direct Emails Extracted</span>
+          <span class="stat-icon icon-green">✉️</span>
+        </div>
+        <div class="stat-value" id="statApplyLinks">0</div>
+        <div class="stat-trend">Regex verified emails</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-header">
+          <span class="stat-title">Hiring Decision Makers</span>
+          <span class="stat-icon icon-amber">👥</span>
+        </div>
+        <div class="stat-value" id="statContacts">0</div>
+        <div class="stat-trend">Founders & PM Leads</div>
+      </div>
+    </section>
+
+    <!-- Filter Controls -->
+    <section class="controls-section">
+      <div class="search-box">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search author, headline, email, description...">
+      </div>
+
+      <div class="filter-dropdowns">
+        <select id="seniorityFilter" class="select-filter">
+          <option value="ALL">All Seniority</option>
+          <option value="Associate / APM">Associate / APM</option>
+          <option value="Product Manager">Product Manager</option>
+          <option value="Senior PM">Senior PM</option>
+        </select>
+
+        <select id="locationFilter" class="select-filter">
+          <option value="ALL">All Locations</option>
+          <option value="Bengaluru">Bengaluru</option>
+          <option value="Gurugram">Gurugram</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Remote">Remote</option>
+        </select>
+
+        <button id="resetFiltersBtn" class="btn btn-secondary">Reset Filters</button>
+      </div>
+    </section>
+
+    <!-- Tabs Container -->
+    <div class="tabs-container">
+      <button class="tab-btn active" data-tab="fresher-fit">
+        Fresher / APM Fit (<span id="countFresher">0</span>)
+      </button>
+      <button class="tab-btn" data-tab="fresh-email">
+        ✉️ Fresh Email (<span id="countFreshEmail">0</span>)
+      </button>
+      <button class="tab-btn" data-tab="founder-posted">
+        👤 Founder Posted (<span id="countFounder">0</span>)
+      </button>
+      <button class="tab-btn" data-tab="all">
+        All Active Posts (<span id="countAll">0</span>)
+      </button>
+      <button class="tab-btn" data-tab="archived">
+        📁 Archived (>7d) (<span id="countArchived">0</span>)
+      </button>
+      <button class="tab-btn" data-tab="review-queue">
+        🔍 Human Review (<span id="countReview">0</span>)
+      </button>
+    </div>
+
+    <!-- Cached Feed Notice -->
+    <div id="cachedFeedNotice" class="notice-banner hidden">
+      <span>ℹ️ Showing cached preview records. Click <strong>Update Feed</strong> to run a live discovery.</span>
+    </div>
+
+    <div id="reviewQueueNotice" class="notice-banner hidden">
+      <span>🔍 Candidate URLs found via Brave Search waiting for human review.</span>
+    </div>
+
+    <!-- Main Content Grids -->
+    <main>
+      <div id="candidateGrid" class="jobs-grid hidden"></div>
+      <div id="jobsGrid" class="jobs-grid"></div>
+
+      <div id="noResultsState" class="empty-state hidden">
+        <div class="empty-icon">🔍</div>
+        <h3>No matching LinkedIn hiring posts found</h3>
+        <p>Try clearing your search query or switching tabs.</p>
+      </div>
+    </main>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal-backdrop hidden">
+      <div class="modal-content" style="max-width: 650px;">
+        <div class="modal-header">
+          <div>
+            <h2 id="modalTitle" class="modal-title">LinkedIn Hiring Post</h2>
+            <p id="modalCompany" style="color: var(--accent-cyan); font-weight: 600; font-size: 15px;">Author</p>
+          </div>
+          <button id="closeModalBtn" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body" style="padding: 20px 24px;">
+          <div id="modalDescription" style="white-space: pre-wrap; font-size: 14px; color: var(--text-primary); line-height: 1.6; max-height: 280px; overflow-y: auto; background: rgba(0,0,0,0.2); padding: 14px; border-radius: var(--radius-sm);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Drawer -->
+    <div id="settingsDrawer" class="drawer-backdrop hidden">
+      <div class="drawer-content">
+        <div class="drawer-header">
+          <h3>Settings & Search Provider</h3>
+          <button id="closeDrawerBtn" class="close-btn">&times;</button>
+        </div>
+        <div class="drawer-body">
+          <p style="color: var(--text-secondary); font-size: 14px;">Brave Search API & Apify configuration.</p>
+          <button id="copyAppsScriptBtn" class="btn btn-secondary" style="margin-top: 12px; width: 100%;">Copy Apps Script</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="linkedin_app.js"></script>
+</body>
+</html>
