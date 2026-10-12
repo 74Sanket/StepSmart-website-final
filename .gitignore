@@ -23,6 +23,10 @@ __pycache__/
 *.log
 scratch/
 
+# Submodules / Separate repositories
+ai-job-search/
+career-ops/
+
 # Local search discoveries and cached LinkedIn post records
 data/linkedin_candidates.json
 data/linkedin_posts.json
