@@ -43,7 +43,15 @@ jobs:
           python pipeline.py || true
 
       - name: Commit and Push Updated Job Data
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chrono: Automated daily PM job board refresh [skip ci]"
-          file_pattern: "data/jobs.json strict_pm_jobs_all_portals_india.csv data/linkedin_posts.json data/pm_jobs_google_sheets.csv data/hirer_watchlist.json"
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/jobs.json strict_pm_jobs_all_portals_india.csv
+          if [ -f data/pm_jobs_google_sheets.csv ]; then git add data/pm_jobs_google_sheets.csv || true; fi
+          if [ -f data/hirer_watchlist.json ]; then git add data/hirer_watchlist.json || true; fi
+          if git diff --staged --quiet; then
+            echo "No changes in datasets to commit."
+          else
+            git commit -m "chrono: Automated daily PM job board refresh [skip ci]"
+            git push origin main
+          fi
