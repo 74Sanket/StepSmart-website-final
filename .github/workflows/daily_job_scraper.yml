@@ -32,6 +32,8 @@ jobs:
           pip install -e ./JobSpy
 
       - name: Execute Daily Multi-Portal PM Job Scraper (JobSpy Engine)
+        env:
+          GOOGLE_DOC_WEBHOOK_URL: ${{ secrets.GOOGLE_DOC_WEBHOOK_URL }}
         run: |
           python run_daily_job_scraper.py
 
@@ -47,6 +49,8 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/jobs.json strict_pm_jobs_all_portals_india.csv
+          if [ -f data/daily_pm_jobs_google_doc.md ]; then git add data/daily_pm_jobs_google_doc.md || true; fi
+          if [ -f data/daily_pm_jobs_google_doc.html ]; then git add data/daily_pm_jobs_google_doc.html || true; fi
           if [ -f data/pm_jobs_google_sheets.csv ]; then git add data/pm_jobs_google_sheets.csv || true; fi
           if [ -f data/hirer_watchlist.json ]; then git add data/hirer_watchlist.json || true; fi
           if git diff --staged --quiet; then
